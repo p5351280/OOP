@@ -76,11 +76,11 @@ void get1stDayOfMonth(int year, int month, int& firstDay, int& numberOfDay){
 Precondition:
 	year must be represented in Gregorian calendar, and also must between 1901 and 2099
 	month must be represented in number, and also must between 1 and 12 (1 means Jan, 2 means Feb ... etc)
-    firstDay tell the function which weekday is the first day in the month (0 means Sum, 1 means Mon ... etc)
-    numberOfDay tell the function how many days are there in the month
+	firstDay tell the function which weekday is the first day in the month (0 means Sum, 1 means Mon ... etc)
+	numberOfDay tell the function how many days are there in the month
 
 Postcondition:
-    print out the calendar
+	print out the calendar
 */
 void showCalendar(int year, int month, int firstDay, int numberOfDay){
 	const char MONTH[13][5] = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jan", 
