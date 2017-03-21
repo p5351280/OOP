@@ -25,7 +25,7 @@ Precondition:
 	year and month are both call by reference
 
 Postcodition:
-	input year and month, and return a bool value which tell if the input is legal or illegal
+	input year and month by user, and return a bool value which tell if the input is legal or illegal
 */
 bool inputYrMn(int& year, int& month){
 	cout<<"Please input year (1901-2099) :";
@@ -44,8 +44,8 @@ Precondition:
 	month must be represented in number, and also must between 1 and 12 (1 means Jan, 2 means Feb ... etc)
 
 Postcondition:
-	firstDay is call by reference, it will change into the weekday of the first day in the month (0 means Sum, 1 means Mon ... etc)
-	numberOfDay is call by reference, it is represent how many days are there in the month
+	firstDay is call by reference, it will change into the weekday of the first day in the month (0 means Sun, 1 means Mon ... etc)
+	numberOfDay is call by reference, it is represent how many days are there in the month after function
 */
 void get1stDayOfMonth(int year, int month, int& firstDay, int& numberOfDay){
     switch(month){
@@ -76,15 +76,15 @@ void get1stDayOfMonth(int year, int month, int& firstDay, int& numberOfDay){
 Precondition:
 	year must be represented in Gregorian calendar, and also must between 1901 and 2099
 	month must be represented in number, and also must between 1 and 12 (1 means Jan, 2 means Feb ... etc)
-	firstDay tell the function which weekday is the first day in the month (0 means Sum, 1 means Mon ... etc)
+	firstDay tell the function which weekday is the first day in the month (0 means Sun, 1 means Mon ... etc)
 	numberOfDay tell the function how many days are there in the month
 
 Postcondition:
 	print out the calendar
 */
 void showCalendar(int year, int month, int firstDay, int numberOfDay){
-	const char MONTH[13][5] = {"", "Jan", "Feb", "Mar", "Apr", "May", "Jan", 
-								"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	const char* MONTH[13] = {"", "January", "February", "March", "April", "May", "January", 
+								"July", "Auguest", "September", "October", "November", "December"};
 	cout<<"\n----------------------------------------------------\n"
 		<<"\t\t"<<year<<"\t"<<MONTH[month]
 		<<"\n----------------------------------------------------\n"
@@ -96,5 +96,5 @@ void showCalendar(int year, int month, int firstDay, int numberOfDay){
 		if(i%7 == (7-firstDay)%7)
 			cout<<"\n";
 	}
-	cout<<"\n----------------------------------------------------\n";
+	cout<<"\n----------------------------------------------------\n\n";
 }

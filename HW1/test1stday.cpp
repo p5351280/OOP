@@ -10,14 +10,24 @@ int main(){
 	while(1){
 		cin>>year>>month;
 		get1stDayOfMonth(year, month, firstDay, numberOfDay);
+		const char* DAY[8] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		cout<<"year : "<<year
 			<<"\nmonth : "<<month
-			<<"\nfirstDay : "<<firstDay
+			<<"\nfirstDay : "<<DAY[firstDay]
 			<<"\nnumberOfDay : "<<numberOfDay<<endl;
 	}
 	return 0;
 }
 
+/*
+ Precondition:
+	year must be represented in Gregorian calendar, and also must between 1901 and 2099
+	month must be represented in number, and also must between 1 and 12 (1 means Jan, 2 means Feb ... etc)
+ 
+ Postcondition:
+	firstDay is call by reference, it will change into the weekday of the first day in the month (0 means Sun, 1 means Mon ... etc)
+	numberOfDay is call by reference, it is represent how many days are there in the month
+ */
 void get1stDayOfMonth(int year, int month, int& firstDay, int& numberOfDay){
 	switch(month){
 		case 1: case 3: case 5: case 7: case 8: case 10: case 12:
