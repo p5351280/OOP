@@ -1,11 +1,24 @@
+//404410053 資工二 張碩恩
+//please use UNIX-like environment to compile and execute the code
+//using makefile to compile and execute
+//compile command : g++ -std=c++11 main.cpp
+//already test on linux.cs.ccu.edu.tw
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
-#include <unistd.h>
+#include <unistd.h> // for usleep function
 
 using namespace std;
 
+/*
+	The class for GameOfLife.
+	There are three public function you can use.
+		1.initialize 2.proceed 3.display
+	And there are three private members.
+	The class can be initial by constructor.
+*/
 class GameOfLife{
 	public:
 		void initialize(int initialPattern);
@@ -21,18 +34,45 @@ class GameOfLife{
 		bool world[260][260];
 };
 
+/*
+	Precondition:
+		choose one kind of pattern you want it to initial like.
+		1 for Glider, 2 for Lightweight Spaceship, 3 for Pulsar.
+		4-99 will be random to percent of life cover the world.
+	Postcondition:
+		the world in GameOfLife will change into what you want it to be.
+*/
 void GameOfLife::initialize(int initialPattern){
 	const bool GLIDER[3][3] = {
 		{1,1,1},
 		{1,0,0},
 		{0,1,0}
 	};
+
+/*
+	const bool GLIDER[3][3] = {
+		{1,0,1},
+		{1,1,1},
+		{0,1,0}
+	};
+*/
+
 	const bool LIGHTWEIGHT[4][5] = {
 		{0,1,0,0,1},
 		{1,0,0,0,0},
 		{1,0,0,0,1},
 		{1,1,1,1,0}
 	};
+
+/*
+	const bool LIGHTWEIGHT[4][5] = {
+		{0,0,1,0,0},
+		{1,0,1,0,0},
+		{0,1,0,1,0},
+		{0,1,0,0,0}
+	};
+*/
+
 	const bool PULSAR[13][13] = {
 		{0,0,1,1,0,0,0,0,0,1,1,0,0},
 		{0,0,0,1,1,0,0,0,1,1,0,0,0},
@@ -65,9 +105,9 @@ void GameOfLife::initialize(int initialPattern){
 				for(int j=1; j<=13; j++)
 					world[i + height/2 - 6][j + width/2 - 6] = PULSAR[i-1][j-1];
 			break;
-		default:
+		default:	// random
 			srand(time(NULL));
-			int fill = height*width * initialPattern/100;
+			int fill = height*width * initialPattern/100;	// to caculate how many lifes it need
 			int tmpForFill = fill;
 			while(fill){
 				int randomHeight = rand() % height + 1, 
@@ -81,6 +121,10 @@ void GameOfLife::initialize(int initialPattern){
 	}
 }
 
+/*
+	Precondition: input how many generations does it need to proceed
+	Postcondition: it will generate one generation in a time, and also display it for every generation.
+*/
 void GameOfLife::proceed(int processCount){
 	const int DIRECTION[8][2] = {{0, 1}, {1, 0}, {1, 1}, {0, -1}, {-1, 0}, {-1, -1}, {-1, 1}, {1, -1}};
 	bool newWorld[260][260];
@@ -89,16 +133,16 @@ void GameOfLife::proceed(int processCount){
 			for(int j=1; j<=width; j++){
 				int countNeighbor = 0;
 				for(int k=0; k<8; k++)
-					if(world[ i + DIRECTION[k][0] ][ j + DIRECTION[k][1] ])	countNeighbor++;
-				if(countNeighbor<2 || countNeighbor>3)	newWorld[i][j] = 0;
-				else if(countNeighbor==3 && !world[i][j])	newWorld[i][j] = 1;
+					if(world[ i + DIRECTION[k][0] ][ j + DIRECTION[k][1] ])	countNeighbor++;	// count how many neighbors is lives
+				if(countNeighbor<2 || countNeighbor>3)	newWorld[i][j] = 0;	// if more than 3 neighbors or less than 2 neighbors is lives, it will die
+				else if(countNeighbor==3 && !world[i][j])	newWorld[i][j] = 1;	// if there is exactly 3 neighbors live, it will become live
 				else	newWorld[i][j] = world[i][j];
 			}
 		}
 		memcpy(world, newWorld, sizeof(world));
 		display();
-		cout << "Count : " << count << endl;
-		usleep(90000);
+		cout << "Count : " << count << "/" << processCount << endl;
+		usleep(90000);	// let the program pause for 90000 micro seconds
 	}
 }
 
@@ -106,17 +150,22 @@ void GameOfLife::display(){
 	//for(int i=0; i<100; i++)	cout<<endl;
 	system("clear");
 	for(int i=1; i<=height; i++) {
-		for(int j=1; j<=width; j++)
-			cout<<world[i][j]<<" ";
+		for(int j=1; j<=width; j++){
+			if(world[i][j])
+				cout<<world[i][j]<<" ";
+			else
+				cout<<"  ";
+		}
 		cout<<endl;
 	}
 }
 
+// constructor
 GameOfLife::GameOfLife(int heightValue, int widthValue): height(heightValue), width(widthValue)
 {
 
 }
-
+// default constructor
 GameOfLife::GameOfLife(): height(23), width(80)
 {
 
@@ -133,6 +182,7 @@ int main(){
 		if(!height || !width)	game = GameOfLife();
 		else if(height<16 || height>256 || width<16 || width>256){
 			cout << "input error!\n";
+			usleep(900000);
 			continue;
 		}
 		else	game = GameOfLife(height, width);
@@ -141,6 +191,7 @@ int main(){
 		cin >> type;
 		if(type>99 || type<0){
 			cout << "Type Error!\n";
+			usleep(900000);
 			continue;
 		}
 		game.initialize(type);
