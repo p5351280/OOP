@@ -37,8 +37,10 @@ Rational::Rational(int wholeNumber):numerator(wholeNumber), denominator(1){
 }
 
 Rational::Rational(int numeratorValue, int denominatorValue){
-	if(denominatorValue == 0)
-		cout<<"DenominatorValue cannot be 0.\n";
+	if(denominatorValue == 0){
+		cout << "DenominatorValue cannot be 0.\n";
+		exit(1);
+	}
 	else{
 		numerator = numeratorValue;
 		denominator = denominatorValue;
@@ -72,12 +74,22 @@ void Rational::normalize(){
 
 //friend
 ostream& operator <<(ostream& outs, const Rational& r){
-
+	outs << r.numerator << '/' << r.denominator;
+	return outs;
 }
 
 //friend
 istream& operator >>(istream& in, Rational& r){
-
+	int numerator, denominator;
+	char slash;
+	in >> numerator >> slash >> denominator;
+	if(denominator == 0){
+		cout << "Denominator cannot be 0.\n";
+		exit(1);
+	}
+	r.numerator = numerator;
+	r.denominator = denominator;
+	return in;
 }
 
 //nonmember
@@ -104,14 +116,14 @@ Rational operator -(const Rational& r){
 //friend
 Rational operator *(const Rational& r1, const Rational& r2){
 	int numerator = r1.numerator * r2.numerator;
-	int denominator = r2.numerator * r2.numerator;
+	int denominator = r2.denominator * r2.denominator;
 	return Rational(numerator, denominator);
 }
 
 //friend
 Rational operator /(const Rational& r1, const Rational& r2){
 	int numerator = r1.numerator * r2.denominator;
-	int denominator = r1.denominator * r1.numerator;
+	int denominator = r1.denominator * r2.numerator;
 	return Rational(numerator, denominator);
 }
 
@@ -146,10 +158,60 @@ int& Rational::operator [](int index){
 		return numerator;
 	else if(index == 1)
 		return denominator;
-	else
+	else{
 		cout<<"Wrong index.\n";
+		exit(1);
+	}
 }
 
 int main(){
+	Rational a, b;
+	cout << "Please input Number a, add slash between numerator and denominator.\n";
+	cin >> a;
+	cout << "Please input Number b, add slash between numerator and denominator.\n";
+	cin >> b;
+	cout << "All the answer will print after normalize.\n\n";
+	a.normalize();
+	b.normalize();
+	cout << "a = " << a << endl;
+	cout << "b = " << b << endl;
+	Rational ans;
+
+	ans = a+b;
+	ans.normalize();
+	cout << "a + b = " << ans << endl;
+
+	ans = a-b;
+	ans.normalize();
+	cout << "a - b = " << ans << endl;
+
+	ans = -a;
+	ans.normalize();
+	cout << "-a = " << ans << endl;
+
+	ans = a*b;
+	ans.normalize();
+	cout << "a * b = " << ans << endl;
+
+	ans = a/b;
+	ans.normalize();
+	cout << "a / b = " << ans << endl;
+
+	if(a==b)	cout << "a==b\n";
+	if(a<b)		cout << "a<b\n";
+	if(a<=b)	cout << "a<=b\n";
+	if(a>b)		cout << "a>b\n";
+	if(a>=b)	cout << "a>=b\n";
+
+	cout << "\nChange value by []\n";
+	int tmp;
+	cout << "Input A's numerator : ";
+	cin >> tmp;
+	a[0] = tmp;
+	cout << "Input A's denominator : ";
+	cin >> tmp;
+	a[1] = tmp;
+	a.normalize();
+	cout << a[0] << '/' << a[1] << endl;
 	return 0;
 }
