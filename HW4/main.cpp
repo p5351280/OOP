@@ -1,9 +1,30 @@
+//404410053 CSIE2 張碩恩
+//compile on Mac OS 10.12.4
+//command line: g++ main.cpp
+
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
 #include <cstring>
 using namespace std;
+
+/*
+	class BigInt:
+		use to do store BigInt, include positive and negative
+	Constructor:
+		there are three kinds of constructor
+		1. default constructor, set number to 0
+		2. constructor for the argument which is integer
+		3. constructor for the arguement which is char array
+		4. constructor for the arguement which is BigInt (Copy Constructor)
+	Operator overloading:
+		friend function: << + -
+		member function: =
+	Others:
+		1. Destructor
+		2. Compare function (friend function)
+*/
 
 class BigInt{
 	public:
@@ -18,11 +39,20 @@ class BigInt{
 		friend BigInt operator -(BigInt a, BigInt b);
 		friend int cmp(BigInt a, BigInt b);	
 	private:
-		int *number;
+		int *digit;
 		int size;
 		bool negative;
 };
 
+/*
+	Compare the absolute value of BigInt.
+	If absolute value is the same, then will compare number include negative.
+	The function will be used in implement of overloading operator +
+	
+	Return 1 if first parameter larger than second
+	Return 2 if second parameter larger than first
+	Return 0 if both are the same
+*/
 int cmp(BigInt a, BigInt b){
 	if(a.size > b.size)
 		return 1;
@@ -30,9 +60,9 @@ int cmp(BigInt a, BigInt b){
 		return 2;
 	else{
 		for(int i=a.size-1; i>=0; i--){
-			if(a.number[i] > b.number[i])
+			if(a.digit[i] > b.digit[i])
 				return 1;
-			else if(a.number[i] < b.number[i])
+			else if(a.digit[i] < b.digit[i])
 				return 2;
 		}
 	}
@@ -43,91 +73,126 @@ int cmp(BigInt a, BigInt b){
 	return 0;
 }
 
+/*
+	Default constructor: set BigInt to 0
+*/
 BigInt::BigInt(){
 	size = 1;
-	number = new int[size];
-	number[0] = 0;
+	digit = new int[size];
+	digit[0] = 0;
 	negative = false;
 }
 
+/*
+	Destructor
+*/
 BigInt::~BigInt(){
-	delete [] number;
-	number = NULL;
+	delete [] digit;
+	digit = NULL;
 }
 
+/*
+	Constructor with integer
+*/
 BigInt::BigInt(int num){
 	if(num<0)
 		negative = true;
 	else
 		negative = false;
 
-	num = abs(num);
+	num = abs(num);	//change into absolute number
 	if(num>0)
-		size = log10(num)+1;
+		size = log10(num)+1;	//find how long the number is
 	else
 		size = 1;
 
-	number = new int[size];
+	digit = new int[size];	//get amemory with size 'size'
 
-	for(int i=0; i<size; i++){
-		number[i] = num%10;
+	for(int i=0; i<size; i++){	//store into class
+		digit[i] = num%10;
 		num /= 10;
 	}
 }
 
+/*
+	Constructor with char array
+*/
 BigInt::BigInt(const char *numArray){
-	if(numArray[0] == '-'){
+	int start=0;
+	int sizeArray = strlen(numArray);
+	if(numArray[0] == '-'){		//find if the number is negative
 		negative = true;
-		size = strlen(numArray)-1;
+		start = 1;
+		for(start=start; start<sizeArray; start++)
+			if(numArray[start] != '0')	break;	//check if there have extra 0
+		size = sizeArray-start;	//if yes, minus them
 	}
-	else{
+	else{	//is positive
 		negative = false;
-		size = strlen(numArray);
+        if(numArray[0] == '+')	start = 1;
+		for(start=start; start<sizeArray; start++)
+            if(numArray[start] != '0')	break;	//check if there have extra 0
+        size = sizeArray-start;	//if yes, minus them
 	}
-
-	number = new int[size];
-
-	if(negative)
-		for(int i=0; i<size; i++)
-			number[i] = numArray[i+1]-'0';
-	else
-		for(int i=0; i<size; i++)
-			number[i] = numArray[i]-'0';
-	reverse(number, number+size);
+    if(start == sizeArray){	//if all the number is 0
+        size = 1;
+        digit = new int[size];
+        digit[0] = 0;
+        negative = false;
+    }
+    else{
+        digit = new int[size];	//get a memory with size 'size'
+        int cnt=0;
+        for(int i=start; i<sizeArray; i++)	//copy from start
+            digit[cnt++] = numArray[i]-'0';	//store into class (for negative)
+        reverse(digit, digit+size);
+    }
 }
 
+/*
+	Copy Constructor
+*/
 BigInt::BigInt(const BigInt& inObject){
 	negative = inObject.negative;
 	size = inObject.size;
-	number = new int[size];
+	digit = new int[size];
 	for(int i=0; i<size; i++)
-		number[i] = inObject.number[i];
+		digit[i] = inObject.digit[i];
 }
 
+/*
+	Operator overloading =
+*/
 BigInt& BigInt::operator =(const BigInt& rtValue){
-	if(this == &rtValue)
+	if(this == &rtValue)	//if having a=a, just return a
 		return *this;
 	else{
 		negative = rtValue.negative;
 		size = rtValue.size;
-		delete [] number;
-		number = new int[size];
+		delete [] digit;
+		digit = new int[size];
 		for(int i=0; i<size; i++)
-			number[i] = rtValue.number[i];
+			digit[i] = rtValue.digit[i];
 		return *this;
 	}
 }
 
+/*
+	Operator overloading <<, make the class can use for cout
+*/
 ostream& operator <<(ostream& output, const BigInt& a){
 	if(a.negative)
 		output << "-";
 	for(int i=a.size-1; i>=0; i--)
-		output << a.number[i];
+		output << a.digit[i];
 	return output;
 }
 
-BigInt operator +(BigInt a, BigInt b){
-    if(cmp(a, b) == 2){
+/*
+	Operator overloading +
+*/
+BigInt operator +(BigInt a, BigInt b){	//because will change a b value, so use call by value
+    if(cmp(a, b) == 2){	//first use compare function to make the bigger ones put in front
         BigInt temp;
         temp = a;
         a = b;
@@ -135,72 +200,100 @@ BigInt operator +(BigInt a, BigInt b){
     }
     BigInt result;
     int maxSize = a.size, minSize = b.size;
-    result.number = new int[maxSize+1];
+    result.digit = new int[maxSize+1];
     for(int i=0; i<=maxSize; i++)
-		result.number[i] = 0;
-	if(a.negative == b.negative){
+		result.digit[i] = 0;
+	if(a.negative == b.negative){	//for a+b or (-a)+(-b)=>-(a+b)
 		if(a.negative)
 			result.negative = true;
 		else
 			result.negative = false;
-		
+
+		/* doing BigInt plus */
 		for(int i=0; i<minSize; i++)
-			result.number[i] += a.number[i]+b.number[i];
+			result.digit[i] += a.digit[i]+b.digit[i];
 		for(int i=minSize; i<maxSize; i++)
-			result.number[i] += a.number[i];
+			result.digit[i] += a.digit[i];
 		for(int i=0; i<maxSize; i++){
-			result.number[i+1] += result.number[i]/10;
-			result.number[i] %= 10;
+			result.digit[i+1] += result.digit[i]/10;
+			result.digit[i] %= 10;
 		}
-		if(result.number[maxSize])
+
+		/* check if there have one more digit */
+		if(result.digit[maxSize])
 			result.size = maxSize+1;
 		else
 			result.size = maxSize;
 	}
 
-	else if(!a.negative){
-		result.negative = false;
+	else if(!a.negative){	//doing a+(-b)
+		result.negative = false;	//because |a|>|b|, we can know solution is positive
+		
+		/* doing BigInt plus */
 		for(int i=0; i<b.size; i++)
-			b.number[i] = -b.number[i];
-		for(int i=0; i<minSize; i++){
-			result.number[i] += a.number[i]+b.number[i];
-			if(result.number[i] < 0){
-				result.number[i+1]--;
-				result.number[i] += 10;
-			}
-		}
+			b.digit[i] = -b.digit[i];	//change every digits of B into negative
+		for(int i=0; i<minSize; i++)
+			result.digit[i] += a.digit[i]+b.digit[i];
 		for(int i=minSize; i<maxSize; i++)
-			result.number[i] += a.number[i];
-
+			result.digit[i] += a.digit[i];
 		for(int i=0; i<maxSize; i++){
-			result.number[i+1] += result.number[i]/10;
-			result.number[i] %=10;
+			if(result.digit[i] < 0){	//if some digit is negative
+				result.digit[i+1]--;	//borrow from next digit
+				result.digit[i] += 10;
+			}
+			result.digit[i+1] += result.digit[i]/10;
+			result.digit[i] %=10;
 		}
+		
+		/* to check how long is the solution */
 		for(int i=maxSize-1; i>=0; i--)
-			if(result.number[i]){
+			if(result.digit[i]){
 				result.size = i+1;
 				break;
 			}	
 	}
  	
-	/* -a+b = -( -(-a)+(-b) ) */
-    else{
-        a.negative ^= 1;
-        b.negative ^= 1;
+	else{		//doing -a+b , it the same as -( -(-a)+(-b) )
+        a.negative ^= 1;	//change a sign
+        b.negative ^= 1;	//change b sign
         result = a+b;
         result.negative ^= 1;
     }
 
 	return result;
 }
-
+/*
+	Operator overloading -
+*/
 BigInt operator -(BigInt a, BigInt b){
-	b.negative ^= 1;
-	return a+b;
+	b.negative ^= 1;	//change b sign
+	return a+b;			//then doing a+b is equal to a-b
 }
 
 int main(){
-	BigInt a("-929"), b("928"), c;
-	c = a+b;
-	cout << c << endl;
+	BigInt a("314159265358979323846264338327950288419716939937510"), c(a);
+	BigInt *b = new BigInt(1618033988);
+
+	cout << "Test by default" << endl;
+	c = a + *b;
+	cout << a << " + " << *b << " = " << c << endl; 
+	c = a - *b;
+	cout << a << " - " << *b << " = " << c << endl;
+
+	cout << endl << "Test by user" << endl;
+	cout << "Input x and y" << endl;
+    char x[1000]={0}, y[1000]={0};
+	while(1){
+		cout << "x : ";
+		cin >> x;
+		cout <<"y : ";
+		cin >> y;
+		BigInt A(x), B(y), C;
+		C = A + B;
+		cout << A << " + " << B << " = " << C << endl;
+		C = A - B;
+		cout << A << " - " << B << " = " << C << endl;
+        memset(x, 0, sizeof(x));
+        memset(y, 0, sizeof(y));
+	}
 }
