@@ -5,7 +5,7 @@ using namespace std;
 using namespace BigInt_N;
 int main()
 {
-    BigInt a("6!"), b("-5!"), c, g;
+    BigInt a("100"), b("100"), c, g;
 	
 	cin >> a;
 	cin >> b;
@@ -19,7 +19,7 @@ int main()
 	
 	c = a * b;
     cout << a << " * " << b << " = " << c << endl;
-
+	
 	c = a / b;
 	cout << a << " / " << b << " = " << c << endl;
 

@@ -1,7 +1,6 @@
 all:Rational.o BigInt.o testForRational.cpp testForBigInt.cpp
-	g++ -o Rational.test Rational.o BigInt.o testForRational.cpp
-	g++ -o BigInt.test BigInt.o testForBigInt.cpp
-
+	g++ -O2 -g -o Rational.test Rational.o BigInt.o testForRational.cpp
+	g++ -O2 -g -o BigInt.test BigInt.o testForBigInt.cpp
 Rational.o:Rational.h Rational.cpp
 	g++ -c Rational.cpp
 
