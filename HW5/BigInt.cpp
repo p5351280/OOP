@@ -114,6 +114,9 @@ BigInt::BigInt(const char initial[])
 			sign = memorySign;
 		}
 	}
+
+	this->realUsageAdjust();
+	this->signAdjust();
 }
 
 BigInt::BigInt(const BigInt& initial)
@@ -122,11 +125,11 @@ BigInt::BigInt(const BigInt& initial)
 	int i(0);
     digit = new int[capacity];
 
-	for(i;i<initial.realUsage;i++)
+	for(i=0;i<initial.realUsage;i++)
         digit[i] = initial.digit[i];
 	
 	//set the remaining digits to 0
-	for(i;i<initial.capacity;i++)
+	for(i=i;i<initial.capacity;i++)
         digit[i] = 0;
 }
 
@@ -147,11 +150,11 @@ void BigInt::capacityExtend(const int needCapacity)
 		int *olddigit = digit;
 		digit = new int[capacity];
 	
-		for(i;i<realUsage;i++)
+		for(i=0;i<realUsage;i++)
 	        digit[i] = olddigit[i];
 
 		//set the remaining digits to 0
-		for(i;i<capacity;i++)
+		for(i=i;i<capacity;i++)
 	        digit[i] = 0;
 	
 		delete[] olddigit;
@@ -162,10 +165,16 @@ void BigInt::realUsageAdjust()
 {
 	int i(capacity-1);
 
-	while(digit[i] == 0 && i >= 1)
+	while(i >= 1 && digit[i] == 0)
 		i--;
 
 	realUsage = i + 1;
+}
+
+void BigInt::signAdjust()
+{
+	if(realUsage == 1 && digit[0] == 0)
+		sign = 0;
 }
 
 const int BigInt::getCapacity() const
@@ -198,11 +207,11 @@ const bool BigInt::setCapacity(int newCapacity)
 		digit = new int[newCapacity];
 		capacity = newCapacity;
 
-		for(i;i<realUsage;i++)
+		for(i=0;i<realUsage;i++)
 	        digit[i] = olddigit[i];
 
 		//set the remaining digits to 0
-		for(i;i<capacity;i++)
+		for(i=i;i<capacity;i++)
 	        digit[i] = 0;
 	
 		delete[] olddigit;
@@ -222,6 +231,7 @@ const bool BigInt::setDigit(int location, int newDigit)
 		digit[location - 1] = newDigit;
 		
 		this->realUsageAdjust();
+		this->signAdjust();
 		
 		return 1;
 	}
@@ -230,6 +240,7 @@ const bool BigInt::setDigit(int location, int newDigit)
 const bool BigInt::setSign(bool newSign)
 {
 	sign = newSign;
+	this->signAdjust();
 	return 1;
 }
 
@@ -244,7 +255,7 @@ const BigInt operator +(const BigInt& num1, const BigInt& num2)
         fin.sign = num1.sign;
 		fin.realUsage = max(num1.realUsage, num2.realUsage) + 1;
         
-		for(i;i<max(num1.realUsage, num2.realUsage);i++)
+		for(i=0;i<max(num1.realUsage, num2.realUsage);i++)
         {
 			if(flag == 0)
 			{
@@ -273,7 +284,7 @@ const BigInt operator +(const BigInt& num1, const BigInt& num2)
 		else
 			fin.realUsage--;
 
-		for(i=4;i>=0;i--)
+		//for(i=4;i>=0;i--)
 
         return fin;
     }
@@ -352,6 +363,7 @@ const BigInt operator -(const BigInt& num1, const BigInt& num2)
         }
 
 		fin.realUsageAdjust();
+		fin.signAdjust();
 
         return fin;
     }
@@ -374,7 +386,8 @@ const BigInt operator -(const BigInt& num1, const BigInt& num2)
 const BigInt operator -(const BigInt& num)
 {
 	BigInt fin(num);
-	fin.sign = !fin.sign;
+	if(fin.realUsage != 0 || fin.digit[0] != 0)
+		fin.sign = !fin.sign;
 
 	return fin;
 }
@@ -401,6 +414,7 @@ const BigInt operator *(const BigInt& num1, const BigInt& num2)
 	}
 	
 	fin.realUsageAdjust();
+	fin.signAdjust();
 	return fin;
 }
 
@@ -409,6 +423,13 @@ const BigInt operator /(BigInt num1, BigInt num2)
 	BigInt fin(0), temp(0);
 	int i(0), j(0);
 	bool si = num1.sign ^ num2.sign;
+
+	if(num2 == 0)
+	{
+		cout << "Error: can't divide 0\n";
+		return fin;
+	}
+
 	num1.sign = 0;
 	num2.sign = 0;
 	for(i=num1.realUsage-1; i>=0; i--){
@@ -423,12 +444,15 @@ const BigInt operator /(BigInt num1, BigInt num2)
 	}
 	fin.sign = si;
 	fin.realUsageAdjust();
-	if(fin.abs() == 0)
-		fin.sign = 0;
+	fin.signAdjust();
 	return fin;
 }
 
 const BigInt operator %(BigInt num1, BigInt num2){
+
+	if(num2 == 0)
+		return BigInt(num1);
+
 	BigInt fin = num1-(num1/num2)*num2;
 	if(fin<0)
 		fin = fin+num2.abs();
@@ -439,12 +463,15 @@ const BigInt BigInt::operator =(const BigInt& num2)
 {
     int i(0);
 	
-	this->capacityExtend(num2.capacity);
+	this->capacityExtend(num2.realUsage);
     this->sign = num2.sign;
 	this->realUsage = num2.realUsage;
 
-    for(i;i<this->realUsage;i++)
+    for(i=0;i<this->realUsage;i++)
         this->digit[i] = num2.digit[i];
+
+	for(i=i;i<this->capacity;i++)
+        this->digit[i] = 0;
 
     return BigInt(num2);
 }
@@ -552,7 +579,7 @@ const bool BigInt::operator !=(const BigInt& num) const
 
 	int i(this->realUsage - 1);
 
-	while(this->digit[i] == num.digit[i] && i >= 0)
+	while(i >= 0 && this->digit[i] == num.digit[i])
 		i--;
 
 	return (i<0 ? 0:1); 
@@ -565,7 +592,7 @@ const bool BigInt::operator ==(const BigInt& num) const
 
 	int i(this->realUsage - 1);
 
-	while(this->digit[i] == num.digit[i] && i >= 0)
+	while(i >= 0 && this->digit[i] == num.digit[i])
 		i--;
 
 	return (i<0 ? 1:0); 
@@ -586,7 +613,7 @@ istream& operator >>(istream& inputStream, BigInt& num)
 {
 	char str[1024];
 	
-	cin.getline(str, 1024);
+	cin >> str;
 	
 	num = BigInt(str);
 

@@ -31,6 +31,8 @@ namespace BigInt_N{
 			//Postcondition: extend the capacity of the object.
 			void realUsageAdjust();
 			//Postcondition: adjust the realUsage of the object.
+			void signAdjust();
+			//Postcondition: adjust the sign of the object.
 
 			//Accessor functions
 			const int getCapacity() const;
