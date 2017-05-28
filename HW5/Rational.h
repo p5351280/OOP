@@ -15,7 +15,7 @@
 	Member Function:
 		normalize: to reduce fraction
 	Operator overloading:
-		friend function: << >> + - * / ==
+		friend function: << + - * / ==
  */
 
 #ifndef RATIONAL_H
@@ -34,12 +34,11 @@ namespace Rational_N{
 			BigInt getDenominator() const;
 			void normalize();
 			friend ostream& operator <<(std::ostream& outs, const Rational& r);
-			friend istream& operator >>(std::istream& ins, Rational& r);
 			friend const Rational operator +(const Rational& r1, const Rational& r2);
 			friend const Rational operator -(const Rational& r1, const Rational& r2);
 			friend const Rational operator *(const Rational& r1, const Rational& r2);
 			friend const Rational operator /(const Rational& r1, const Rational& r2);
-			friend void operator -(Rational& r);
+			friend Rational operator -(Rational& r);
 			friend bool operator ==(const Rational& r1, const Rational& r2);
 			bool operator <(const Rational& r2) const;
 			bool operator <=(const Rational& r2) const;
