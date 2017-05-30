@@ -7,19 +7,19 @@ using namespace std;
 
 
 namespace Complex_N {
-
+	
 	Complex::Complex() {};
 
 	Complex::Complex(Rational r,Rational i) {
 		real=r;
 		imag=i;
 	}
-	Complex::Complex(char *strR, char *strI){
+	Complex::Complex(const char *strR, const char *strI){
 		Rational r(strR),i(strI);
-		real=r;
+	    real=r;
 		imag=i;	
 	}
-	Complex::Complex(char *str){                   
+	Complex::Complex(const char *str){                   
 		char strR[1000]={0},strI[1000]={0};
 		int index=0,flag=0;
 		for(int i=strlen(str)-2;i>=0;i--){     
@@ -36,14 +36,14 @@ namespace Complex_N {
 			}
 			else if(flag==0)strI[index++]=str[i];
 			else if(flag==1)strR[index++]=str[i];
-
+			
 		}
 		if(flag==0){strR[0]='0';strR[1]='\0';}
 		else strR[index]='\0';
 		invertString(strR);
 		invertString(strI);
 		Rational r(strR),i(strI);
-		real=r;
+	    real=r;
 		imag=i;	
 	}
 	Rational Complex::getReal() const{
@@ -52,15 +52,15 @@ namespace Complex_N {
 	Rational Complex::getImag() const{
 		return imag;
 	}
-
-	//(a+bi)/(c+di)={ (ac+bd) + (bc-ad)i } /(c^2 + d^2)
+	    	
+    //(a+bi)/(c+di)={ (ac+bd) + (bc-ad)i } /(c^2 + d^2)
 	Complex operator / (const Complex& N1, Complex& N2) {
 		Rational realOfAns,imagOfAns;
-		Rational deom=N2.real*N2.real+N2.imag*N2.imag;
-
+        Rational deom=N2.real*N2.real+N2.imag*N2.imag;
+        
 		realOfAns=(N1.real * N2.real + N1.imag*N2.imag)/deom;
-		realOfAns.normalize();
-
+        realOfAns.normalize();
+        
 		imagOfAns=(N1.imag*N2.real-N1.real*N2.imag)/deom;
 		imagOfAns.normalize();
 
@@ -70,17 +70,17 @@ namespace Complex_N {
 
 	ostream& operator<<(ostream& outputStream,const Complex& num) {
 		Rational Zero(0,1);
-
+		
 		outputStream<<num.real<<endl;
-
+        
 		if(num.imag >= Zero)outputStream<<"+";
-
+        
 		outputStream<<num.imag <<"i";
 
 		return outputStream;
 	}
 	void invertString(char *str){
-		char temp;
+	    char temp;
 		int i=0,j=0;
 		for(i=0,j=strlen(str)-1;i<strlen(str)/2;i++,j--){
 			temp=str[j];

@@ -91,32 +91,12 @@ namespace BigInt_N{
 		for(i=realUsage;i<capacity;i++)
 			digit[i] = 0;
 
-		//operate on factorial (!)
-		if(factorial)
-		{
-			if(realUsage == 1 && digit[0] == 0)
-			{
-				sign = 0;
-				digit[0] = 1;
-			}
-			else
-			{
-				bool memorySign = sign;
-				sign = 0;
-				BigInt Mplier(*this - 1);		
-
-				while(Mplier >= 2)
-				{
-					*this = *this * Mplier;
-					Mplier = Mplier - 1;
-				}
-
-				sign = memorySign;
-			}
-		}
-
 		this->realUsageAdjust();
 		this->signAdjust();
+
+		//operate on factorial (!)
+		if(factorial)
+			this->factorial();
 	}
 
 	BigInt::BigInt(const BigInt& initial)
@@ -138,6 +118,29 @@ namespace BigInt_N{
 		delete[] digit;
 	}
 
+	void BigInt::factorial()
+	{
+		if(realUsage == 1 && digit[0] == 0)
+		{
+			sign = 0;
+			digit[0] = 1;
+		}
+		else
+		{
+			bool memorySign = sign;
+			sign = 0;
+			BigInt Mplier(*this - 1);		
+
+			while(Mplier >= 2)
+			{
+				*this = *this * Mplier;
+				Mplier = Mplier - 1;
+			}
+
+			sign = memorySign;
+		}
+	}
+	
 	void BigInt::capacityExtend(const int needCapacity)
 	{
 		int i(0);

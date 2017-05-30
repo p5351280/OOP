@@ -35,9 +35,9 @@ namespace Complex_N {
 			
 			Complex(Rational r,Rational i);
 			//Precindition:Can input like Complex(3,5)-> 3+5i etc.
-			Complex(char *strR,char *strI);
+			Complex(const char *strR,const char *strI);
 			//Precindition:Can input like Complex("3/5","810!")-> 3/5+810!i etc.
-			Complex(char *str);
+			Complex(const char *str);
 			//Precindition:Can input like Complex("3/5+810!i")-> 3/5+810!i etc.
 			
 			Rational getReal() const;

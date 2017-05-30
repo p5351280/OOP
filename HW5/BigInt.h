@@ -27,6 +27,9 @@ namespace BigInt_N{
 			BigInt(const BigInt &);
 			//Postcondition: initialize to object (copy constructor).
 			~BigInt();
+
+			void factorial();
+			//Postcondition: calculate factorial Bigint of Bigint.
 			void capacityExtend(const int);
 			//Postcondition: extend the capacity of the object.
 			void realUsageAdjust();

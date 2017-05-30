@@ -32,7 +32,7 @@ namespace Rational_N{
 			Rational();
 			Rational(BigInt wholeNumber);
 			Rational(BigInt numeratorValue, BigInt denominatorValue);
-			Rational(char *str);
+			Rational(const char *str);
 			BigInt getNumerator() const;
 			BigInt getDenominator() const;
 			void normalize();

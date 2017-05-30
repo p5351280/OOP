@@ -30,22 +30,22 @@ namespace Rational_N{
 			denominator = denominatorValue;
 		}
 	}
-	Rational::Rational(char *str){
-		char strN[1000]={0},strD[1000]={0};
-		int index=0,flag=0;
-
+	Rational::Rational(const char *str){
+	    char strN[1000]={0},strD[1000]={0};
+	    int index=0,flag=0;
+	    
 		for(int i=0;i<strlen(str);i++){
 			if(str[i]=='/'){
-				strN[index]='\0';
+	            strN[index]='\0';
 				index=0;
-				flag=1;
-				continue;
+	            flag=1;
+	            continue;
 			}
 			if(flag==0){
 				strN[index++]=str[i];
-			}
+		    }
 			else if(flag==1){
-				strD[index++]=str[i];
+	            strD[index++]=str[i];
 			}
 		} 
 		if(flag==0){strD[0]='1';strD[1]='\0';}
@@ -68,7 +68,7 @@ namespace Rational_N{
 	   GCD for normalize to use it
 	 */
 	BigInt GCD(BigInt a, BigInt b){
-		//cout<<"GCD"<<b<<endl;
+        //cout<<"GCD"<<b<<endl;
 		if(b==0)
 			return a;
 		else
@@ -97,14 +97,14 @@ namespace Rational_N{
 		outs << r.numerator << '/' << r.denominator;
 		return outs;
 	}
-	istream& operator>>(istream& inputStream,Rational& r){
-		char c;
-		inputStream>>r.numerator;
-		inputStream>>c;
+    istream& operator>>(istream& inputStream,Rational& r){
+	        char c;
+	    	inputStream>>r.numerator;
+			inputStream>>c;
 
-		inputStream>>r.denominator;
-		return inputStream;
-	}
+			inputStream>>r.denominator;
+	        return inputStream;
+    }
 
 	//friend function operator overloading + for plus
 	const Rational operator +(const Rational& r1, const Rational& r2){
