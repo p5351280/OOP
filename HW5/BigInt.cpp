@@ -1,4 +1,4 @@
-/*Mike Chen,404220029,2017/5/26/4:30*/
+/*Mike Chen,404220029,2017/5/29*/
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -125,11 +125,11 @@ namespace BigInt_N{
 		int i(0);
 		digit = new int[capacity];
 
-		for(i=0;i<initial.realUsage;i++)
+		for(;i<initial.realUsage;i++)
 			digit[i] = initial.digit[i];
 
 		//set the remaining digits to 0
-		for(i=i;i<initial.capacity;i++)
+		for(;i<initial.capacity;i++)
 			digit[i] = 0;
 	}
 
@@ -150,11 +150,11 @@ namespace BigInt_N{
 			int *olddigit = digit;
 			digit = new int[capacity];
 
-			for(i=0;i<realUsage;i++)
+			for(;i<realUsage;i++)
 				digit[i] = olddigit[i];
 
 			//set the remaining digits to 0
-			for(i=i;i<capacity;i++)
+			for(;i<capacity;i++)
 				digit[i] = 0;
 
 			delete[] olddigit;
@@ -200,7 +200,7 @@ namespace BigInt_N{
 	const bool BigInt::setCapacity(int newCapacity)
 	{
 		if(newCapacity < realUsage)
-			return 0;
+			return -1;
 		else
 		{
 			int i(0), *olddigit = digit;
@@ -215,14 +215,14 @@ namespace BigInt_N{
 				digit[i] = 0;
 
 			delete[] olddigit;
-			return 1;
+			return 0;
 		}
 	}
 
 	const bool BigInt::setDigit(int location, int newDigit)
 	{
 		if(newDigit > 9 || newDigit < 0 || location < 1)
-			return 0;
+			return -1;
 		else
 		{
 			if(location > capacity)
@@ -233,7 +233,7 @@ namespace BigInt_N{
 			this->realUsageAdjust();
 			this->signAdjust();
 
-			return 1;
+			return 0;
 		}
 	}
 
@@ -241,7 +241,7 @@ namespace BigInt_N{
 	{
 		sign = newSign;
 		this->signAdjust();
-		return 1;
+		return 0;
 	}
 
 	const BigInt operator +(const BigInt& num1, const BigInt& num2)
@@ -249,13 +249,15 @@ namespace BigInt_N{
 		if(num1.sign == num2.sign)
 		{
 			BigInt fin;
-			int i(0), carry(0), flag(0);
+			int i(0),  flag(0);
+			const int maxRealUsage(max(num1.realUsage, num2.realUsage));
+			bool carry(0);
 
-			fin.capacityExtend(max(num1.realUsage, num2.realUsage) + 1);
+			fin.capacityExtend(maxRealUsage + 1);
 			fin.sign = num1.sign;
-			fin.realUsage = max(num1.realUsage, num2.realUsage) + 1;
+			fin.realUsage = maxRealUsage + 1;
 
-			for(i=0;i<max(num1.realUsage, num2.realUsage);i++)
+			for(;i<maxRealUsage;i++)
 			{
 				if(flag == 0)
 				{
@@ -270,19 +272,14 @@ namespace BigInt_N{
 				else if(flag == 2)
 					fin.digit[i] = num2.digit[i] + carry;
 
-				if(fin.digit[i] >= 10)
-				{
-					fin.digit[i] -= 10;
-					carry = 1;
-				}
-				else
-					carry = 0;			}
+				carry = fin.digit[i] / 10;
+				fin.digit[i] %= 10;
+			}
 
 			if(carry == 1)
 				fin.digit[i] = carry;
 			else
 				fin.realUsage--;
-
 
 			return fin;
 		}
@@ -307,13 +304,14 @@ namespace BigInt_N{
 		if(num1.sign == num2.sign)
 		{
 			BigInt fin;
-			int i(0), carry(0), flag(0);
+			int i(0);
+			bool carry(0), flag(0);
 
 			if((num1.sign == 0 && num1 >= num2) || (num1.sign == 1 && num2 >= num1))
 			{
 				fin.capacityExtend(num1.realUsage);
 				fin.sign = num1.sign;
-				for(i=0;i<num1.realUsage;i++)
+				for(;i<num1.realUsage;i++)
 				{
 					if(flag == 0)
 					{
@@ -338,15 +336,15 @@ namespace BigInt_N{
 				fin.capacityExtend(num2.realUsage);
 				fin.sign = !num2.sign;
 
-				for(i=0;i<num2.realUsage;i++)
+				for(;i<num2.realUsage;i++)
 				{
 					if(flag == 0)
 					{
 						fin.digit[i] = num2.digit[i] - num1.digit[i] - carry;
 						if(i == num1.realUsage-1)
-							flag = 2;
+							flag = 1;
 					}
-					else if(flag == 2)
+					else if(flag == 1)
 						fin.digit[i] = num2.digit[i] - carry;
 
 					if(fin.digit[i] < 0)
@@ -397,7 +395,7 @@ namespace BigInt_N{
 		fin.capacityExtend(num1.realUsage + num2.realUsage);
 		fin.sign = num1.sign ^ num2.sign;
 
-		for(j=0;j<num2.realUsage;j++)
+		for(;j<num2.realUsage;j++)
 		{
 			for(i=0;i<num1.realUsage;i++)
 			{
@@ -421,7 +419,7 @@ namespace BigInt_N{
 		int i(0), j(0);
 		bool si = num1.sign ^ num2.sign;
 
-		if(num2 == 0)
+		if(num2.realUsage == 1 && num2.digit[0] == 0)
 		{
 			cout << "Error: can't divide 0\n";
 			return fin;
@@ -447,11 +445,11 @@ namespace BigInt_N{
 
 	const BigInt operator %(BigInt num1, BigInt num2){
 
-		if(num2 == 0)
+		if(num2.realUsage == 1 && num2.digit[0] == 0)
 			return BigInt(num1);
 
 		BigInt fin = num1-(num1/num2)*num2;
-		if(fin<0)
+		if(fin < 0)
 			fin = fin+num2.abs();
 		return fin;
 	}
@@ -464,10 +462,10 @@ namespace BigInt_N{
 		this->sign = num2.sign;
 		this->realUsage = num2.realUsage;
 
-		for(i=0;i<this->realUsage;i++)
+		for(;i<this->realUsage;i++)
 			this->digit[i] = num2.digit[i];
 
-		for(i=i;i<this->capacity;i++)
+		for(;i<this->capacity;i++)
 			this->digit[i] = 0;
 
 		return BigInt(num2);
@@ -485,7 +483,7 @@ namespace BigInt_N{
 
 		int i(this->realUsage - 1);
 
-		while(i>=0 && this->digit[i] == num.digit[i])
+		while(i >= 0 && this->digit[i] == num.digit[i])
 			i--;
 
 		if(i<0)
@@ -509,7 +507,7 @@ namespace BigInt_N{
 
 		int i(this->realUsage - 1);
 
-		while(i>=0 && this->digit[i] == num.digit[i])
+		while(i >= 0 && this->digit[i] == num.digit[i])
 			i--;
 
 		if(i<0)
@@ -533,7 +531,7 @@ namespace BigInt_N{
 
 		int i(this->realUsage - 1);
 
-		while(i>=0 && this->digit[i] == num.digit[i])
+		while(i >= 0 && this->digit[i] == num.digit[i])
 			i--;
 
 		if(i<0)
@@ -557,7 +555,7 @@ namespace BigInt_N{
 
 		int i(this->realUsage - 1);
 
-		while(i>=0 && this->digit[i] == num.digit[i])
+		while(i >= 0 && this->digit[i] == num.digit[i])
 			i--;
 
 		if(i<0)
